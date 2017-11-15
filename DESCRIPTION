@@ -1,0 +1,17 @@
+Package: shmc
+Title: Simple hierarchical model of 5hmC
+Version: 0.1.0
+Authors@R: person("Gustavo", "Bayon", email = "gbayon@gmail.com", 
+  role = c("aut", "cre"))
+Description: This package implements a simple hierarchical Bayesian model to 
+  estimate 5hmC levels from DNA methylation information obtained from two 
+  versions of the same samples. The same sample is scanned twice, once with the 
+  common Bisulphite treatment, and again with an additional Oxidation step. The 
+  idea behind this project is not only to estimate 5hmC, but also to find 
+  5hmC-enriched sites/regions and differentially methylated probes/regions 
+  all in one step.
+Depends: R (>= 3.4.0)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
