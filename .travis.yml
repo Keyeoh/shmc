@@ -27,6 +27,7 @@ script:
   - |
     travis_wait 42 R CMD build .
     travis_wait 59 R CMD check shmc*tar.gz
+    echo PT $PKG_TARBALL
 
 after_script:
   - tar -ztvf shmc_*.tar.gz
