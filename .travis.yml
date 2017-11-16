@@ -39,6 +39,8 @@ after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
   - Rscript -e 'library(covr); codecov(quiet=FALSE)'
   - Rscript -e 'options(covr.gcov = "gcov-4.8");library(covr);codecov()'
+  - gcov --version
+  - g++ --version
 
 after_failure:
   - cat shmc.Rcheck/00*
