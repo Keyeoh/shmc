@@ -16,7 +16,8 @@ env:
 
 before_install:
   - mkdir -p ~/.R/
-  - echo "CXX = `R CMD config CXX`" >> ~/.R/Makevars
+#  - echo "CXX = `R CMD config CXX`" >> ~/.R/Makevars
+  - echo "CXX=g++ -m64" >> ~/.R/Makevars
   - echo "CXXFLAGS = `R CMD config CXXFLAGS` -pedantic -g0" >> ~/.R/Makevars
   - export CLANG_EXTRA_ARG=""
   - if [[ $CXX = "clang++" ]] ;  then export CLANG_EXTRA_ARG=" -Qunused-arguments -fcolor-diagnostics " ; fi
