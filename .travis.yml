@@ -40,6 +40,7 @@ after_success:
   - Rscript -e 'library(covr); codecov(quiet=FALSE)'
   - Rscript -e 'options(covr.gcov = "gcov-4.8");library(covr);codecov(quiet=FALSE)'
   - Rscript -e 'options(covr.gcov = "gcov-4.8.4");library(covr);codecov(quiet=FALSE)'
+  - Rscript -e 'options(covr.gcov = "llvm-cov gcov");library(covr);codecov(quiet=FALSE)'
   - gcov --version
   - g++ --version
   - cat ~/.R/Makevars
