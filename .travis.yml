@@ -38,13 +38,12 @@ after_success:
   - travis_wait 40 tar -C .. -xf shmc*tar.gz
   - travis_wait 40 Rscript -e 'covr::codecov()'
   - Rscript -e 'library(covr); codecov(quiet=FALSE)'
-  - Rscript -e 'options(covr.gcov = "gcov-4.8");library(covr);codecov(quiet=FALSE)'
-  - Rscript -e 'options(covr.gcov = "gcov-4.8.4");library(covr);codecov(quiet=FALSE)'
   - Rscript -e 'options(covr.gcov = "llvm-cov gcov");library(covr);codecov(quiet=FALSE)'
   - gcov --version
   - g++ --version
   - cat ~/.R/Makevars
   - llvm-cov
+  - llvm-cov gcov
 
 after_failure:
   - cat shmc.Rcheck/00*
