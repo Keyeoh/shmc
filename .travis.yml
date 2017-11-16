@@ -37,7 +37,7 @@ after_success:
   - gcov --version
   - travis_wait 40 tar -C .. -xf shmc*tar.gz
   - travis_wait 40 Rscript -e 'covr::codecov()'
-  - Rscript -e 'library(covr); codecov()'
+  - Rscript -e 'library(covr); codecov(quiet=FALSE)'
 
 after_failure:
   - cat shmc.Rcheck/00*
