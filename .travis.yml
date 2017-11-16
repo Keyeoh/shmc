@@ -7,8 +7,8 @@ latex: true
 r_build_args: '--no-build-vignettes'
 r_check_args: '--ignore-vignettes --no-examples'
 
-r_packages:
-  - covr
+r_github_packages:
+  - jimhester/covr
 
 env:
   matrix:
@@ -33,7 +33,8 @@ after_script:
   - echo ${NOT_CRAN}
 
 after_success:
-  - pwd
+  - ls -Ra
+  - gcov --version
   - travis_wait 40 tar -C .. -xf shmc*tar.gz
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
