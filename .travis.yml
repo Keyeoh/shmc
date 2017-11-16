@@ -33,7 +33,10 @@ after_script:
   - echo ${NOT_CRAN}
 
 after_success:
+  - ls -R
   - travis_wait 40 tar -C .. -xf shmc*tar.gz
+  - ls -R
+  - gcov
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
 after_failure:
