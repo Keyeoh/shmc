@@ -43,6 +43,7 @@ after_success:
   - gcov --version
   - g++ --version
   - cat ~/.R/Makevars
+  - llvm-cov
 
 after_failure:
   - cat shmc.Rcheck/00*
