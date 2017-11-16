@@ -42,6 +42,7 @@ after_success:
   - Rscript -e 'options(covr.gcov = "gcov-4.8.4");library(covr);codecov(quiet=FALSE)'
   - gcov --version
   - g++ --version
+  - cat ~/.R/Makevars
 
 after_failure:
   - cat shmc.Rcheck/00*
