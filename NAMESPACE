@@ -3,4 +3,5 @@
 export(double_beta)
 import(Rcpp)
 import(methods)
+importFrom(rstan,sampling)
 useDynLib(shmc, .registration = TRUE)

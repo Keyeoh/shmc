@@ -13,6 +13,8 @@
 #' proportions between no-mc, 5mC and 5hmC.
 #'
 #' @return Don't know yet.
+#'
+#' @importFrom rstan sampling
 #' @export
 #'
 double_beta = function(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1)) {
@@ -31,4 +33,6 @@ double_beta = function(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1)) {
     object = stanmodels$double_beta,
     data = dat
   )
+
+  return(fit)
 }
