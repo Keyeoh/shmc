@@ -20,7 +20,7 @@ samples (columns) and groups.}
 proportions between no-mc, 5mC and 5hmC.}
 }
 \value{
-Don't know yet.
+A data.frame containing the tidy results from the model fit.
 }
 \description{
 This function fits a double-beta model to the 5hmC data represented with

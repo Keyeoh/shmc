@@ -26,4 +26,6 @@ test_that('double_beta() works as expected on a simple case', {
   mock_groups = c(1, 1, 1, 1, 2, 2, 2, 2)
 
   result = double_beta(mock_bs, mock_ox, mock_groups)
+
+  expect_is(result, 'data.frame')
 })
