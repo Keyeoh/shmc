@@ -28,4 +28,7 @@ test_that('double_beta() works as expected on a simple case', {
   result = double_beta(mock_bs, mock_ox, mock_groups)
 
   expect_is(result, 'data.frame')
+  expect_equal(dim(result), c(6, 10))
+  expect_true(all(is.na(unlist(
+    result[result$Contrast == 'Group_2 - Group_1', c('Rhat', 'N_Eff')]))))
 })
