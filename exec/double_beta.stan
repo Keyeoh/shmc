@@ -15,26 +15,29 @@ parameters {
   simplex[3] meth_state[n_groups];
 }
 
-transformed parameters {
-  real <lower = 0> BS_alpha[n_groups];
-  real <lower = 0> BS_beta[n_groups];
-  real <lower = 0> OX_alpha[n_groups];
-  real <lower = 0> OX_beta[n_groups];
-
-  for (j in 1:n_groups) {
-    OX_alpha[j] = meth_state[j][2] * (nu_minus_one + 1);
-    OX_beta[j] = (1 - meth_state[j][2]) * (nu_minus_one + 1);
-    BS_alpha[j] = (meth_state[j][2] + meth_state[j][3]) * (nu_minus_one + 1);
-    BS_beta[j] = (1 - meth_state[j][2] - meth_state[j][3]) * (nu_minus_one + 1);
-  }
-}
-
 model {
+  vector[n_groups] BS_alpha;
+  vector[n_groups] BS_beta;
+  vector[n_groups] OX_alpha;
+  vector[n_groups] OX_beta;
+  vector[n_groups] mc;
+  vector[n_groups] hmc;
+  real nu;
+
   nu_minus_one ~ gamma(nu_shape, nu_shape / nu_mean);
+  nu = nu_minus_one + 1;
 
   for (j in 1:n_groups) {
     meth_state[j] ~ dirichlet(alpha);
+
+    mc[j] = meth_state[j][2];
+    hmc[j] = meth_state[j][3];
   }
+
+  OX_alpha = mc * nu;
+  OX_beta = (1 - mc) * nu;
+  BS_alpha = (mc + hmc) * nu;
+  BS_beta = (1 - mc - hmc) * nu;
 
   for (j in 1:n_samples) {
     BS[, j] ~ beta(BS_alpha[group_id[j]], BS_beta[group_id[j]]);
