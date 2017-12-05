@@ -8,7 +8,8 @@
 #' @param ox A p x n numerical matrix containing the Oxidated data.
 #' @param groups A vector of dimension n representing the correspondence between
 #' samples (columns) and groups.
-#' @param nu A numeric estimate for the total intensity of an average probe.
+#' @param nu_shape A numeric estimate shape of the prior on sample size.
+#' @param nu_mean A numeric estimate mean of the prior on sample size.
 #' @param alpha A vector of dimension 3 containing the prior estimate for the
 #' proportions between no-mc, 5mC and 5hmC.
 #'
@@ -18,7 +19,8 @@
 #' @importFrom rstan sampling
 #' @export
 #'
-double_beta = function(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1)) {
+double_beta = function(bs, ox, groups, nu_shape = 2, nu_mean = 1000,
+                       alpha = c(1, 1, 1)) {
 
   n_groups = max(groups)
 
@@ -29,7 +31,8 @@ double_beta = function(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1)) {
     group_id = groups,
     BS = bs,
     OX = ox,
-    nu = nu,
+    nu_shape = nu_shape,
+    nu_mean = nu_mean,
     alpha = alpha
   )
 

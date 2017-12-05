@@ -27,7 +27,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_double_beta");
-    reader.add_event(39, 39, "end", "model_double_beta");
+    reader.add_event(43, 43, "end", "model_double_beta");
     return reader;
 }
 
@@ -39,8 +39,9 @@ private:
     vector<vector<double> > BS;
     vector<vector<double> > OX;
     vector<int> group_id;
-    double nu;
     vector_d alpha;
+    double nu_shape;
+    double nu_mean;
 public:
     model_double_beta(stan::io::var_context& context__,
         std::ostream* pstream__ = 0)
@@ -129,11 +130,6 @@ public:
         for (size_t i_0__ = 0; i_0__ < group_id_limit_0__; ++i_0__) {
             group_id[i_0__] = vals_i__[pos__++];
         }
-        context__.validate_dims("data initialization", "nu", "double", context__.to_vec());
-        nu = double(0);
-        vals_r__ = context__.vals_r("nu");
-        pos__ = 0;
-        nu = vals_r__[pos__++];
         validate_non_negative_index("alpha", "3", 3);
         context__.validate_dims("data initialization", "alpha", "vector_d", context__.to_vec(3));
         validate_non_negative_index("alpha", "3", 3);
@@ -144,6 +140,16 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < alpha_i_vec_lim__; ++i_vec__) {
             alpha[i_vec__] = vals_r__[pos__++];
         }
+        context__.validate_dims("data initialization", "nu_shape", "double", context__.to_vec());
+        nu_shape = double(0);
+        vals_r__ = context__.vals_r("nu_shape");
+        pos__ = 0;
+        nu_shape = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "nu_mean", "double", context__.to_vec());
+        nu_mean = double(0);
+        vals_r__ = context__.vals_r("nu_mean");
+        pos__ = 0;
+        nu_mean = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n_probes",n_probes,1);
@@ -164,8 +170,9 @@ public:
         for (int k0__ = 0; k0__ < n_samples; ++k0__) {
             check_greater_or_equal(function__,"group_id[k0__]",group_id[k0__],1);
         }
-        check_greater_or_equal(function__,"nu",nu,1);
         check_greater_or_equal(function__,"alpha",alpha,1);
+        check_greater_or_equal(function__,"nu_shape",nu_shape,0);
+        check_greater_or_equal(function__,"nu_mean",nu_mean,0);
         // initialize data variables
 
         try {
@@ -180,6 +187,7 @@ public:
         // validate, set parameter ranges
         num_params_r__ = 0U;
         param_ranges_i__.clear();
+        ++num_params_r__;
         validate_non_negative_index("meth_state", "3", 3);
         validate_non_negative_index("meth_state", "n_groups", n_groups);
         num_params_r__ += (3 - 1) * n_groups;
@@ -197,6 +205,20 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("nu_minus_one")))
+            throw std::runtime_error("variable nu_minus_one missing");
+        vals_r__ = context__.vals_r("nu_minus_one");
+        pos__ = 0U;
+        context__.validate_dims("initialization", "nu_minus_one", "double", context__.to_vec());
+        // generate_declaration nu_minus_one
+        double nu_minus_one(0);
+        nu_minus_one = vals_r__[pos__++];
+        try {
+            writer__.scalar_lb_unconstrain(0,nu_minus_one);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable nu_minus_one: ") + e.what());
+        }
 
         if (!(context__.contains_r("meth_state")))
             throw std::runtime_error("variable meth_state missing");
@@ -247,6 +269,13 @@ public:
         // model parameters
         stan::io::reader<T__> in__(params_r__,params_i__);
 
+        T__ nu_minus_one;
+        (void) nu_minus_one;  // dummy to suppress unused var warning
+        if (jacobian__)
+            nu_minus_one = in__.scalar_lb_constrain(0,lp__);
+        else
+            nu_minus_one = in__.scalar_lb_constrain(0);
+
         vector<Eigen::Matrix<T__,Eigen::Dynamic,1> > meth_state;
         size_t dim_meth_state_0__ = n_groups;
         meth_state.reserve(dim_meth_state_0__);
@@ -280,10 +309,10 @@ public:
         try {
             for (int j = 1; j <= n_groups; ++j) {
 
-                stan::math::assign(get_base1_lhs(OX_alpha,j,"OX_alpha",1), (get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) * nu));
-                stan::math::assign(get_base1_lhs(OX_beta,j,"OX_beta",1), ((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) * nu));
-                stan::math::assign(get_base1_lhs(BS_alpha,j,"BS_alpha",1), ((get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) + get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * nu));
-                stan::math::assign(get_base1_lhs(BS_beta,j,"BS_beta",1), (((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) - get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * nu));
+                stan::math::assign(get_base1_lhs(OX_alpha,j,"OX_alpha",1), (get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(OX_beta,j,"OX_beta",1), ((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(BS_alpha,j,"BS_alpha",1), ((get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) + get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(BS_beta,j,"BS_beta",1), (((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) - get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * (nu_minus_one + 1)));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -339,6 +368,7 @@ public:
         // model body
         try {
 
+            lp_accum__.add(gamma_log<propto__>(nu_minus_one, nu_shape, (nu_shape / nu_mean)));
             for (int j = 1; j <= n_groups; ++j) {
 
                 lp_accum__.add(dirichlet_log<propto__>(get_base1(meth_state,j,"meth_state",1), alpha));
@@ -373,6 +403,7 @@ public:
 
     void get_param_names(std::vector<std::string>& names__) const {
         names__.resize(0);
+        names__.push_back("nu_minus_one");
         names__.push_back("meth_state");
         names__.push_back("BS_alpha");
         names__.push_back("BS_beta");
@@ -384,6 +415,8 @@ public:
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
         dimss__.resize(0);
         std::vector<size_t> dims__;
+        dims__.resize(0);
+        dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(n_groups);
         dims__.push_back(3);
@@ -415,11 +448,13 @@ public:
         static const char* function__ = "model_double_beta_namespace::write_array";
         (void) function__;  // dummy to suppress unused var warning
         // read-transform, write parameters
+        double nu_minus_one = in__.scalar_lb_constrain(0);
         vector<vector_d> meth_state;
         size_t dim_meth_state_0__ = n_groups;
         for (size_t k_0__ = 0; k_0__ < dim_meth_state_0__; ++k_0__) {
             meth_state.push_back(in__.simplex_constrain(3));
         }
+        vars__.push_back(nu_minus_one);
         for (int k_1__ = 0; k_1__ < 3; ++k_1__) {
             for (int k_0__ = 0; k_0__ < n_groups; ++k_0__) {
                 vars__.push_back(meth_state[k_0__][k_1__]);
@@ -456,10 +491,10 @@ public:
         try {
             for (int j = 1; j <= n_groups; ++j) {
 
-                stan::math::assign(get_base1_lhs(OX_alpha,j,"OX_alpha",1), (get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) * nu));
-                stan::math::assign(get_base1_lhs(OX_beta,j,"OX_beta",1), ((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) * nu));
-                stan::math::assign(get_base1_lhs(BS_alpha,j,"BS_alpha",1), ((get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) + get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * nu));
-                stan::math::assign(get_base1_lhs(BS_beta,j,"BS_beta",1), (((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) - get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * nu));
+                stan::math::assign(get_base1_lhs(OX_alpha,j,"OX_alpha",1), (get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(OX_beta,j,"OX_beta",1), ((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(BS_alpha,j,"BS_alpha",1), ((get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2) + get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * (nu_minus_one + 1)));
+                stan::math::assign(get_base1_lhs(BS_beta,j,"BS_beta",1), (((1 - get_base1(get_base1(meth_state,j,"meth_state",1),2,"meth_state",2)) - get_base1(get_base1(meth_state,j,"meth_state",1),3,"meth_state",2)) * (nu_minus_one + 1)));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -538,6 +573,9 @@ public:
                                  bool include_tparams__ = true,
                                  bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "nu_minus_one";
+        param_names__.push_back(param_name_stream__.str());
         for (int k_1__ = 1; k_1__ <= 3; ++k_1__) {
             for (int k_0__ = 1; k_0__ <= n_groups; ++k_0__) {
                 param_name_stream__.str(std::string());
@@ -576,6 +614,9 @@ public:
                                    bool include_tparams__ = true,
                                    bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "nu_minus_one";
+        param_names__.push_back(param_name_stream__.str());
         for (int k_1__ = 1; k_1__ <= (3 - 1); ++k_1__) {
             for (int k_0__ = 1; k_0__ <= n_groups; ++k_0__) {
                 param_name_stream__.str(std::string());
