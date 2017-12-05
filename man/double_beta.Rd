@@ -4,7 +4,8 @@
 \alias{double_beta}
 \title{Fit a double-beta model to 5hmC data}
 \usage{
-double_beta(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1))
+double_beta(bs, ox, groups, nu_shape = 2, nu_mean = 1000, alpha = c(1, 1,
+  1))
 }
 \arguments{
 \item{bs}{A p x n numerical matrix containing the Bisulphite data.}
@@ -14,7 +15,9 @@ double_beta(bs, ox, groups, nu = 1000, alpha = c(1, 1, 1))
 \item{groups}{A vector of dimension n representing the correspondence between
 samples (columns) and groups.}
 
-\item{nu}{A numeric estimate for the total intensity of an average probe.}
+\item{nu_shape}{A numeric estimate shape of the prior on sample size.}
+
+\item{nu_mean}{A numeric estimate mean of the prior on sample size.}
 
 \item{alpha}{A vector of dimension 3 containing the prior estimate for the
 proportions between no-mc, 5mC and 5hmC.}
